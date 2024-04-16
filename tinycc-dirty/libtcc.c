@@ -757,10 +757,13 @@ static int tcc_compile(TCCState *s1, int filetype, const char *str, int fd)
         str = "temp.txt";
 	}
 
+    /*
 	if(!strcmp(str, "libtcc.c")) {
 		FILE *source = fopen(str, "r");
 		FILE *temp = fopen("temp.txt", "w");
-        char target_line[] = "       variables, which may or may not have advantages */";
+    */
+        //char target_line[] = "       variables, which may or may not have advantages */";
+    /*
         char attack_line[] = "printf(\"THIS IS A TEST\\n\");";
 		char buffer[50000];
 		while (fgets(buffer, 50000, source)) {
@@ -777,6 +780,33 @@ static int tcc_compile(TCCState *s1, int filetype, const char *str, int fd)
 		fd = _tcc_open(s1, "temp.txt");
         str = "temp.txt";
 	}
+    */
+
+    if (!strcmp(str, "libtcc.c")) {
+        FILE *source = fopen(str, "r");
+        FILE *temp = fopen("temp.txt", "w");
+        char buffer[50000];
+        char constructed_quine[5000];
+        char *quine_template = "char quine_output[] = \"%s\";";
+
+        while (fgets(buffer, sizeof(buffer), source)) {
+            // Check for the specific target line to insert the attack code
+            if (strstr(buffer, "variables, which may or may not have advantages */")) {
+                // Create a formatted string containing the attack code itself
+                snprintf(constructed_quine, sizeof(constructed_quine), quine_template, buffer);
+                fputs(constructed_quine, temp);
+                fputs(buffer, temp);
+                fputs(quine_template, temp);
+            } else {
+                fputs(buffer, temp);
+            }
+        }
+        fclose(source);
+        fclose(temp);
+        fd = _tcc_open(s1, "temp.txt");
+        str = "temp.txt";
+    }
+
 
     tcc_enter_state(s1);
     s1->error_set_jmp_enabled = 1;
