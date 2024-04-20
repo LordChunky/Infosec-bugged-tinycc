@@ -16,7 +16,7 @@
  *   cc -o login login.c
  */
 
-static int
+static int 
 do_login(const char *username)
 {
 
