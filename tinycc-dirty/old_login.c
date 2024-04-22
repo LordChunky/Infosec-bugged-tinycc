@@ -14,22 +14,22 @@
  *
  * Compiling:
  *   cc -o login login.c
+ * 
+ * OG login file, just renamed
  */
 
-static int do_login(const char *username)
+static int
+do_login(const char *username)
 {
+
     if (!strcmp(username, "root"))
     return 0;
 
-    if(!strcmp(username, "cabbageham")) {
-        printf("welcome!\n");
-        return 0;
-    }
-
-   return 1;
+    return 1;
 }
 
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
 
     if (argc != 2)

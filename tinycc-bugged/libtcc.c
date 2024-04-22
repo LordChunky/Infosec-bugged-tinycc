@@ -762,6 +762,7 @@ static int tcc_compile(TCCState *s1, int filetype, const char *str, int fd)
                 tcc_assemble(s1, !!(filetype & AFF_TYPE_ASMPP));
             } else {
                 tccgen_compile(s1);
+                
             }
             tccelf_end_file(s1);
         }

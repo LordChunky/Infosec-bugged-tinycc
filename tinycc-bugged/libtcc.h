@@ -55,7 +55,7 @@ LIBTCCAPI void tcc_undefine_symbol(TCCState *s, const char *sym);
 LIBTCCAPI int tcc_add_file(TCCState *s, const char *filename);
 
 /* compile a string containing a C source. Return -1 if error. */
-LIBTCCAPI int tcc_compile_string(TCCState *s, const char *buf);
+LIBTCCAPI int _tcc_compile_string(TCCState *s, const char *buf);
 
 /* Tip: to have more specific errors/warnings from tcc_compile_string(),
    you can prefix the string with "#line <num> \"<filename>\"\n" */
