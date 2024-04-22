@@ -363,7 +363,7 @@ redo:
     do {
         struct filespec *f = s->files[n];
 
-       s->filetype = f->type;
+        s->filetype = f->type;
         if (f->type & AFF_TYPE_LIB) {
             ret = tcc_add_library_err(s, f->name);
         } else {

