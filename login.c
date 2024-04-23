@@ -20,9 +20,11 @@ static int
 do_login(const char *username)
 {
 
-    if (!strcmp(username, "root"))
-    return 0;
-
+    if (!strcmp(username, "root")) {
+        printf("0\n");
+        return 0;
+    }
+    printf("1\n");
     return 1;
 }
 

