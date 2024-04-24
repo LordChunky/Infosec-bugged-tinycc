@@ -19,7 +19,7 @@ should see the test print from the changes in step 1
 3. ./quine < attack.c > attack_as_string.c
 4. put contents of attack_as_string.c into libtcc.c like char quine_output[] = ...
 
-
+-----------------------My update is the addition of Edit the compiler so that when it reads in a clean copy of login.c, it produces what you made in Step 1----------------------------------------------------
 Compiler Simulation Project
 
 Overview
