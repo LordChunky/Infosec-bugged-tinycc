@@ -1,19 +1,26 @@
 # Infosec-bugged-tinycc
-This is the branch of Yihan Shao. My addition is CompilerSimulation.c and backdoor.c. \n
+This is the branch of Yihan Shao. My addition is CompilerSimulation.c and backdoor.c. 
 
 
 -------------------Step 1--------------------
+
 made changes to tinycc-dirty/libtcc.c
+
 ./configure
+
 make && sudo make install
+
 enter tinycc-clean
+
 ./configure --cc=../tinycc-dirty/tcc
+
 make && sudo make install
 
 //after congiruation installed, than change it.
-Experimental methods
-Obtain and modify the compiler source code
 
+Experimental methods
+
+Obtain and modify the compiler source code
 
 Firstly, clone the official repository of the Tiny C compiler and switch to the corresponding working directory:
 
