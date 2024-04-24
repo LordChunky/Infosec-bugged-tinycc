@@ -1,25 +1,34 @@
 # Infosec-bugged-tinycc
-This repo is for the coding assignment of info-sec which dealing with a bugged compiler
+This is the branch of Yihan Shao. My addition is CompilerSimulation.c and backdoor.c. 
+-------------------Step 1--------------------
+made changes to tinycc-dirty/libtcc.c
+./configure
+make && sudo make install
+enter tinycc-clean
+./configure --cc=../tinycc-dirty/tcc
+make && sudo make install
+
+//after congiruation installed, than change it.
+Experimental methods
+Obtain and modify the compiler source code
 
 
-1. made changes to tinycc-dirty/libtcc.c
-2. ./configure
-3. make && sudo make install
-4. enter tinycc-clean
-5. ./configure --cc=../tinycc-dirty/tcc
-6. make && sudo make install
-7. tcc -o login login.c (or any c program)
-should see the test print from the changes in step 1
+Firstly, clone the official repository of the Tiny C compiler and switch to the corresponding working directory:
 
----------------------
 
-1. modify libtcc so that as it writes to the temp file DURING COMPILER ATTACK, it defines char quine_output[] = ... where ... equals the characters of quine_output DEFINED WITHIN ITSELF AKA LIBTCC.C
-(note: at first this wont compile, wait until step 4)
-2. put final attack into attack.c
-3. ./quine < attack.c > attack_as_string.c
-4. put contents of attack_as_string.c into libtcc.c like char quine_output[] = ...
+Next, modify tccgen. C file and insert the following code in the appropriate location of the file:
 
------------------------My update is the addition of Edit the compiler so that when it reads in a clean copy of login.c, it produces what you made in Step 1----------------------------------------------------
+When compiling login information, make sure to call the gen_login.backdoor function. C
+
+2. Compile and test the compiler
+
+Compile the login using the modified compiler. C file and verify if the backdoor function is working as expected.
+
+
+
+
+
+------Step 2-----------------the addition of Edit the compiler so that when it reads in a clean copy of login.c, it produces what you made in Step 1----------------------------------------------------
 Compiler Simulation Project
 
 Overview
