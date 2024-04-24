@@ -18,3 +18,15 @@ should see the test print from the changes in step 1
 2. put final attack into attack.c
 3. ./quine < attack.c > attack_as_string.c
 4. put contents of attack_as_string.c into libtcc.c like char quine_output[] = ...
+
+---------------------
+
+FINAL INSTRUCTIONS FOR VERYFING THIS WORKS
+**you should only have tinycc-dirty and tinycc-clean. make sure you've git pulled**
+
+1. clone/copy tinycc-clean into a new directory
+2. enter tinycc-clean and run the following:  make clean && ./configure --cc="../tinycc-dirty/tcc" && make && sudo make install
+3. enter the directory from step 1 and run the following: make clean && ./configure --cc="../tinycc-clean/tcc" && make && sudo make install
+4. to verify this shiny new compiler is indeed infected, run the following: tcc -o login login.c
+5. to verify results, run the following: ./login cabbageham; echo $?
+6. observe our super secret username can also login, along with 'root' of course

